@@ -33,9 +33,10 @@
             border-right: 1px solid var(--border);
             padding: 30px 20px;
             box-sizing: border-box;
+            overflow-y: auto;
         }
 
-        .sidebar h3 { font-size: 0.75em; color: #8b949e; letter-spacing: 1px; margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .sidebar h3 { font-size: 0.75em; color: #8b949e; letter-spacing: 1px; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-top: 25px; }
         .sidebar a { 
             display: block;
             color: var(--text);
@@ -71,7 +72,19 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
 
-        /* Grid para las 5 imágenes */
+        .code-block {
+            background: #000;
+            color: #7ee787;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            margin: 15px 0;
+        }
+
         .grid-5 {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -82,24 +95,16 @@
         .metric-box { background: #0d1117; padding: 20px; border-radius: 10px; text-align: center; border: 1px solid var(--border); }
         .highlight { display: block; font-size: 2.5em; font-weight: bold; color: var(--accent); }
 
-        .img-container {
-            text-align: center;
-        }
-
+        .img-container { text-align: center; }
         .img-container img {
             width: 100%;
             border-radius: 8px;
             border: 1px solid var(--border);
             transition: transform 0.3s;
         }
-
         .img-container img:hover { transform: scale(1.05); }
 
-        .eps-label {
-            margin-top: 10px;
-            font-size: 0.85em;
-            font-weight: bold;
-        }
+        .eps-label { margin-top: 10px; font-size: 0.85em; font-weight: bold; }
 
         .description-box {
             background: rgba(88, 166, 255, 0.03);
@@ -111,19 +116,22 @@
         }
 
         .chart-container { height: 400px; margin-top: 25px; }
-
         footer { text-align: center; color: #484f58; font-size: 0.8em; margin: 40px 0; }
     </style>
 </head>
 <body>
 
 <nav class="sidebar">
-    <h3>AUDITORÍA DE ROBUSTEZ</h3>
-    <a href="#inicio">Introducción</a>
-    <a href="#modelo">Modelo Base</a>
-    <a href="#ataque">Progresión FGSM</a>
-    <a href="#defensa">Defensa Adversarial</a>
-    <a href="#resultados">Resultados</a>
+    <h3 style="margin-top:0;">INTRODUCCIÓN</h3>
+    <a href="#inicio">Portada</a>
+    
+    <h3>PARTE 1: ESTEBAN</h3>
+    <a href="#modelo">Arquitectura CNN</a>
+    <a href="#ataque">Ataque FGSM (Camiones)</a>
+    
+    <h3>PARTE 2: DANIEL</h3>
+    <a href="#defensa">Fine-Tuning & Defensa</a>
+    <a href="#resultados">Análisis de Robustez</a>
     <a href="#conclusiones">Conclusiones</a>
 </nav>
 
@@ -132,34 +140,37 @@
     <section id="inicio">
         <span style="color: var(--accent); font-weight: bold; letter-spacing: 2px;">CIBERSEGURIDAD E IA</span>
         <h1>Robustez en Deep Learning</h1>
-        <p style="font-size: 1.2em; color: #8b949e; margin-top: 10px;">Análisis de vulnerabilidades sobre CIFAR-10</p>
+        <p style="font-size: 1.2em; color: #8b949e; margin-top: 10px;">Auditoría de ataques adversarios sobre CIFAR-10</p>
         <p style="color: var(--blue);">Esteban Masci & Daniel Camps</p>
     </section>
 
     <section id="modelo">
-        <h2><i class="fa fa-microchip"></i> Rendimiento del Modelo Base</h2>
+        <h2><i class="fa fa-code"></i> Arquitectura de la Red Neuronal</h2>
         <div class="card">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div class="metric-box">
-                    <span class="highlight">74.40%</span>
-                    <span>Accuracy (Sin Ataque)</span>
-                </div>
-                <div class="metric-box">
-                    <span class="highlight">CNN</span>
-                    <span>Arquitectura</span>
-                </div>
+            <p>Definición del modelo secuencial y configuración de capas:</p>
+            <div class="code-block">
+                model = Sequential([<br>
+                &nbsp;&nbsp;Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)),<br>
+                &nbsp;&nbsp;BatchNormalization(),<br>
+                &nbsp;&nbsp;MaxPooling2D((2, 2)),<br>
+                &nbsp;&nbsp;Conv2D(64, (3, 3), activation='relu'),<br>
+                &nbsp;&nbsp;BatchNormalization(),<br>
+                &nbsp;&nbsp;MaxPooling2D((2, 2)),<br>
+                &nbsp;&nbsp;Dropout(0.2),<br>
+                &nbsp;&nbsp;Flatten(),<br>
+                &nbsp;&nbsp;Dense(128, activation='relu'),<br>
+                &nbsp;&nbsp;Dense(10, activation='softmax')<br>
+                ])
             </div>
             <div class="description-box">
-                Modelo basado en Redes Neuronales Convolucionales entrenado con imágenes de 32x32 píxeles. Presenta una alta eficacia en condiciones ideales.
+                La arquitectura utiliza capas <strong>Conv2D</strong> para la extracción de características, <strong>BatchNormalization</strong> para la estabilidad y <strong>Dropout</strong> para mitigar el sobreajuste, logrando un 74.40% de precisión inicial.
             </div>
         </div>
     </section>
 
     <section id="ataque">
-        <h2><i class="fa fa-biohazard"></i> Progresión del Ataque FGSM</h2>
+        <h2><i class="fa fa-biohazard"></i> Progresión del Ataque (Muestras Camión)</h2>
         <div class="card">
-            <p>Impacto visual y técnico al incrementar la magnitud de la perturbación (ε):</p>
-            
             <div class="grid-5">
                 <div class="img-container">
                     <img src="eps_0.png" alt="ε=0">
@@ -174,7 +185,7 @@
                 <div class="img-container">
                     <img src="eps_005.png" alt="ε=0.05">
                     <div class="eps-label">ε = 0.05</div>
-                    <div style="font-size: 0.7em;">Error de Clase</div>
+                    <div style="font-size: 0.7em;">Fallo de Clase</div>
                 </div>
                 <div class="img-container">
                     <img src="eps_010.png" alt="ε=0.10">
@@ -187,50 +198,42 @@
                     <div style="font-size: 0.7em;">Crítico</div>
                 </div>
             </div>
-
             <div class="description-box">
-                Observamos cómo el <strong>Epsilon</strong> controla la "fuerza" del ataque. A medida que ε aumenta, el ruido se vuelve más evidente para el ojo humano, pero el modelo vulnerable pierde toda capacidad de clasificación correcta.
+                Representación de cómo el ruido calculado mediante <strong>FGSM</strong> degrada la capacidad predictiva. Aunque para el ojo humano el camión es identificable, el gradiente redirige la clasificación hacia categorías erróneas.
             </div>
         </div>
     </section>
 
     <section id="defensa">
-        <h2><i class="fa fa-shield-halved"></i> Defensa: Entrenamiento Adversarial</h2>
+        <h2><i class="fa fa-shield-halved"></i> Defensa: Fine-Tuning Adversarial</h2>
         <div class="card">
-            <div style="display: flex; gap: 20px; align-items: center;">
-                <div style="flex: 1;">
-                    <ul style="line-height: 1.8;">
-                        <li>Inclusión de ejemplos perturbados en el entrenamiento.</li>
-                        <li>Regularización de los gradientes de la red.</li>
-                        <li>Mayor capacidad de generalización ante ruido malicioso.</li>
-                    </ul>
-                </div>
-                <div style="flex: 1; text-align: center; background: rgba(46,160,67,0.1); padding: 20px; border-radius: 10px;">
-                    <i class="fa fa-lock" style="font-size: 3em; color: var(--accent);"></i>
-                    <p>Inmunización del Modelo</p>
+            <p>Se ha aplicado una técnica de <strong>Fine-Tuning</strong> sobre el modelo original utilizando ejemplos perturbados generados dinámicamente.</p>
+            <div style="display: flex; gap: 20px; align-items: center; margin-top:15px;">
+                <div style="flex: 1; background: rgba(88, 166, 255, 0.1); padding: 15px; border-radius: 8px; border: 1px solid var(--blue);">
+                    <strong>Entrenamiento con Defensa:</strong> El modelo ajusta sus pesos internos para minimizar la pérdida tanto en imágenes limpias como en muestras con ruido FGSM.
                 </div>
             </div>
         </div>
     </section>
 
     <section id="resultados">
-        <h2><i class="fa fa-chart-line"></i> Análisis de Robustez</h2>
+        <h2><i class="fa fa-chart-line"></i> Comparativa de Robustez en Test</h2>
         <div class="card">
             <div class="chart-container">
                 <canvas id="compChart"></canvas>
             </div>
             <div class="description-box">
-                La gráfica demuestra la eficacia de nuestra defensa. El modelo robusto (verde) mantiene una precisión útil en rangos donde el modelo estándar (rojo) colapsa totalmente.
+                Esta comparativa evalúa la precisión del <strong>conjunto de test</strong> bajo diferentes niveles de estrés. Como se observa, el ataque afecta a ambos modelos, pero la degradación es significativamente más lenta en el modelo defendido.
             </div>
         </div>
     </section>
 
     <section id="conclusiones">
-        <h2><i class="fa fa-flag-checkered"></i> Conclusiones</h2>
+        <h2><i class="fa fa-flag-checkered"></i> Conclusiones Técnicas</h2>
         <div class="card">
-            <p>1. La precisión en entornos controlados es una métrica insuficiente para la seguridad real.</p>
-            <p>2. El entrenamiento adversarial es un pilar fundamental para desplegar IA en sistemas críticos.</p>
-            <p>3. <strong>Logro final:</strong> Se ha conseguido salvar un 45% de precisión bajo ataque extremo (ε=0.15).</p>
+            <p>1. Los ataques adversarios modernos pueden vulnerar modelos de alta precisión de forma casi invisible.</p>
+            <p>2. El <strong>Fine-Tuning</strong> con ejemplos adversarios mejora la resiliencia del sistema.</p>
+            <p>3. <strong>Observación:</strong> Ningún modelo es invulnerable; la defensa busca elevar el coste del ataque y mantener la operatividad el mayor tiempo posible.</p>
         </div>
     </section>
 
@@ -246,14 +249,14 @@
         data: {
             labels: ['ε=0', 'ε=0.01', 'ε=0.05', 'ε=0.10', 'ε=0.15'],
             datasets: [{
-                label: 'Modelo Vulnerable',
+                label: 'Modelo Base (Vulnerable)',
                 data: [74.4, 45, 12, 5, 2],
                 borderColor: '#f85149',
                 borderWidth: 4,
                 tension: 0.2
             },
             {
-                label: 'Modelo Robusto (Defensa)',
+                label: 'Modelo con Defensa (Fine-Tuning)',
                 data: [72.1, 68, 60, 52, 45],
                 borderColor: '#2ea043',
                 borderWidth: 4,
@@ -264,7 +267,7 @@
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                y: { beginAtZero: true, grid: { color: '#30363d' }, ticks: { color: '#8b949e' } },
+                y: { beginAtZero: true, grid: { color: '#30363d' }, ticks: { color: '#8b949e' }, title: { display: true, text: 'Precisión en Test (%)', color: '#8b949e' } },
                 x: { grid: { color: '#30363d' }, ticks: { color: '#8b949e' } }
             },
             plugins: { legend: { labels: { color: '#c9d1d9' } } }
